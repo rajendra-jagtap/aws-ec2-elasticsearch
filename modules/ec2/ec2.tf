@@ -38,11 +38,11 @@ resource "aws_security_group" "ec2-sg" {
   }
 
   ingress {
-    from_port       = 22
-    to_port         = 22
+    from_port       = 9200
+    to_port         = 9200
     protocol        = "tcp"
-    description     = "ssh"
-    cidr_blocks     = [var.vpc_cidr]
+    description     = "es"
+    cidr_blocks     = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -92,3 +92,10 @@ resource "aws_instance" "ec2" {
   }
 }
 
+#############################################################
+# Output values to use in Ansible configuration
+#############################################################
+
+output "es_public_ip" {
+  value = "${aws_instance.ec2.*.public_ip}"
+}

@@ -42,3 +42,18 @@ module "ec2" {
   instance_type          = "${var.instance_type}"
 }
 
+#########################################################
+# Ansible Resources
+#########################################################
+
+resource "ansible_host" "es" {
+  count                 = length(var.private_ips)
+  inventory_hostname    = module.ec2.es_public_ip[count.index]
+  groups                = ["elasticsearch"]
+  vars = {
+    ansible_user        = "ec2-user"
+    become              = "yes"
+    interpreter_python  = "/usr/bin/python2"
+    name                = "es${count.index + 1}"
+  }
+}

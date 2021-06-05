@@ -1,0 +1,87 @@
+- hosts: elasticsearch
+  user: ec2-user
+  become: yes
+  tasks:
+    - name: Install Docker
+      shell: "amazon-linux-extras install docker=18.06.1 -y"
+
+    - name: "Starting and Enabling Docker service"
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install packages
+      yum:
+        name: "{{ packages }}"
+        state: latest
+      vars:
+        packages:
+          - amazon-ecr-credential-helper
+          - ca-certificates
+          - curl
+          - dstat
+          - htop
+          - jq
+          - nvme-cli
+          - python2-pip
+          - python3-pip
+          - socat
+          - telnet
+          - tmux
+          - vim
+
+    - name: "Install pip3 docker"
+      pip:
+        name: docker-py
+        state: latest
+        executable: /usr/bin/pip3
+
+    - name: "Install docker compose"
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.1/docker-compose-Linux-x86_64
+        dest: /usr/bin/docker-compose
+        mode: 755
+
+    - name: "create directory for elasticsearch configuration"
+      file:
+        path: /opt/elasticsearch
+        state: directory
+        mode: 775
+
+    - name: "copying docker-compose file to elasticsearch server"
+      copy:
+        src: files/opt/docker-compose.yaml
+        dest: /opt/elasticsearch/docker-compose.yaml
+        mode: '0644'
+
+    - name: "copy tls/ssl configuration files to elasticsearch server"
+      copy:
+        src: files/etc/instances.yml
+        dest: /opt/elasticsearch/instances.yml
+        mode: '0644'
+
+    - name: "copy certificate config file to elasticsearch server"
+      copy:
+        src: files/etc/create-certs.yml
+        dest: /opt/elasticsearch/create-certs.yml
+        mode: '0644'
+
+    - name: "copy environment config file to elasticsearch server"
+      copy:
+        src: files/etc/.env
+        dest: /opt/elasticsearch/.env
+        mode: '0644'
+
+    - name: "Increase Max Virtual Memory"
+      shell: sysctl -w vm.max_map_count=262144
+
+    - name: "Generating the Certificates"
+      shell: /usr/bin/docker-compose -f create-certs.yml run --rm create_certs
+      args:
+        chdir: /opt/elasticsearch/
+
+    - name: "Setting up Elasticsearch"
+      shell: /usr/bin/docker-compose up --detach --force-recreate
+      args:
+chdir: /opt/elasticsearch/
