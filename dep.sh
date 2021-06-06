@@ -6,24 +6,25 @@ function help() {
 
 
 function create() {
-  BACKEND_FILE="env/${1}-backend.tfvars"
-  ENV_FILE="env/${1}.tfvars"
-  echo "Initiating ${1} elasticsearch creation or updation.."
+  BACKEND_FILE="env-configurations/${1}-backend.tfvars"
+  ENV_FILE="env-configurations/${1}.tfvars"
+  echo "Initiating ${1} infra creation or updation.."
   echo "============================================="
   echo
   terraform init -backend-config ${BACKEND_FILE}
   echo
   echo
   terraform apply -var-file ${ENV_FILE}
-  echo
-  echo "Configuring Elasticsearch...."
-  echo "========================"
-  ansible-playbook -i lib/terraform.py main.yaml
+#  echo
+#  echo "Configuring network infra...."
+#  echo "========================"
+#  ansible-playbook -i lib/terraform.py connect.yml
 }
 
 function plan() {
-  ENV_FILE="env/${1}.tfvars"
-  echo "Initiating ${1} elasticsearch creation or updation.."
+  BACKEND_FILE="env-configurations/${1}-backend.tfvars"
+  ENV_FILE="env-configurations/${1}.tfvars"
+  echo "Initiating ${1} infra creation or updation.."
   echo "============================================="
   echo
   terraform init -backend-config ${BACKEND_FILE}

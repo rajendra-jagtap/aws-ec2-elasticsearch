@@ -4,11 +4,9 @@
 
 terraform {
   backend "s3" {
-    bucket = "rj-dev"
-    key    = "var.key"
-    region = "us-east-1"
    }
 }
+
 
 data "aws_caller_identity" "current" {}
 
@@ -49,11 +47,11 @@ module "ec2" {
 resource "ansible_host" "es" {
   count                 = length(var.private_ips)
   inventory_hostname    = module.ec2.es_public_ip[count.index]
-  groups                = ["elasticsearch"]
+# groups                = ["es${count.index + 1}"]
+  groups                = ["es"]
   vars = {
     ansible_user        = "ec2-user"
     become              = "yes"
     interpreter_python  = "/usr/bin/python2"
-    name                = "es${count.index + 1}"
   }
 }

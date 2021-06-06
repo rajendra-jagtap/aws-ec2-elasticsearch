@@ -1,4 +1,6 @@
-- hosts: elasticsearch
+---
+
+- hosts: es
   user: ec2-user
   become: yes
   tasks:
@@ -63,8 +65,8 @@
 
     - name: "copy certificate config file to elasticsearch server"
       copy:
-        src: files/etc/create-certs.yml
-        dest: /opt/elasticsearch/create-certs.yml
+        src: files/etc/certs.yml
+        dest: /opt/elasticsearch/certs.yml
         mode: '0644'
 
     - name: "copy environment config file to elasticsearch server"
@@ -77,11 +79,13 @@
       shell: sysctl -w vm.max_map_count=262144
 
     - name: "Generating the Certificates"
-      shell: /usr/bin/docker-compose -f create-certs.yml run --rm create_certs
+      shell: /usr/bin/docker-compose -f certs.yml run --rm create_certs
       args:
         chdir: /opt/elasticsearch/
 
     - name: "Setting up Elasticsearch"
       shell: /usr/bin/docker-compose up --detach --force-recreate
       args:
-chdir: /opt/elasticsearch/
+        chdir: /opt/elasticsearch/
+    
+

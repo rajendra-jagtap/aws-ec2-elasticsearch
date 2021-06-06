@@ -1,18 +1,21 @@
 instances:
-  - name: es
+  - name: es01
     dns:
-      - "{{ lookup(name) }}"
+      - es01 
+      - localhost
     ip:
-      - 192.168.2.21
+      - 127.0.0.1
 
-  - name: es
+  - name: es02
     dns:
-      - "{{ lookup(name) }}"
+      - es02
+      - localhost
     ip:
-      - 192.168.3.22
+      - 127.0.0.1
 
-  - name: es
+  - name: es03
     dns:
-      - "{{ lookup(name) }}"
+      - es03
+      - localhost
     ip:
-      - 192.168.2.23
+      - 127.0.0.1
